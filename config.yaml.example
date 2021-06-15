@@ -1,0 +1,11 @@
+metrics:
+  prometheus:
+    enabled: false
+    url: "http://prometheus-pushgateway:9091"
+  datadog:
+    enabled: true
+    url: "127.0.0.1:8125"
+
+nb_dial_retry: 10
+hosts:
+  - www.example.domain
