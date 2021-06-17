@@ -1,0 +1,17 @@
+metrics:
+  enabled: {{ .Values.metrics.enabled }}
+  port: {{ .Values.metrics.port }}
+  path: {{ .Values.metrics.path }}
+{{- if .Values.hosts }}
+hosts:
+{{- range .Values.hosts }}
+{{ $port := .port }}
+{{- range .target }}
+- "{{ . }}:{{ $port }}"
+{{- end}}
+{{- end }}
+{{- end }}
+{{- if .Values.certsPaths }}
+certsPaths: {{ .Values.certificateSecrets }}
+{{- end }}
+checksFrequency: {{ .Values.checksFrequency }}

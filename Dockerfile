@@ -1,26 +1,12 @@
-FROM golang:1.16 AS builder
-ARG GOOS=linux
-ARG GOARCH=amd64
-ARG CGO_ENABLED=0
+#FROM gcr.io/distroless/static
+FROM debian
 
-LABEL build_path ./
+COPY tlsmonitor /tlsmonitor
 
-WORKDIR /tlsmonitor
-COPY . .
-
-
-RUN go mod download
-RUN go mod verify
-RUN go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o tlsmonitor
+EXPOSE 8080
+EXPOSE 9090
+LABEL version 1.0.0
+LABEL name tlsmonitor
 
 
-# FINAL IMAGE
-
-FROM gcr.io/distroless/base
-
-COPY --from=builder /tlsmonitor/tlsmonitor /tlsmonitor
-
-LABEL version 0.0.7
-
-CMD ["/tlsmonitor"]
-
+ENTRYPOINT ["/tlsmonitor"]
