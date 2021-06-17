@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_HUB_USER: ${{secrets.DOCKER_HUB_USER}}
+        DOCKER_HUB_TOKEN: ${{secrets.DOCKER_HUB_TOKEN}}
+      run: |
+        echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag "${{ secrets.DOCKER_HUB_REPOSITORY }}":latest
+
+    - name: Docker Push
+      run: docker push "${{ secrets.DOCKER_HUB_REPOSITORY }}":latest
