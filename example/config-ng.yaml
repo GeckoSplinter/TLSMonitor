@@ -1,0 +1,10 @@
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+
+hosts:
+  - wwww.google.fr
+
+certs:
+  - ./example/certs
