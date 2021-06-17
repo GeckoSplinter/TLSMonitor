@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -14,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/DataDog/datadog-go/statsd"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -22,16 +24,22 @@ import (
 )
 
 type Config struct {
-	PromUrl     string   `yaml:"prometheus_url"`
+	Metrics     Metrics  `yaml:"metrics"`
 	NbDialRetry int      `yaml:"nb_dial_retry"`
 	Hosts       []string `yaml:"hosts,omitempty"`
 	CertsPaths  []string `yaml:"certs_paths,omitempty"`
 }
 
-var (
-	config = flag.String("config", "config.yaml", "Path to config file")
-	debug  = flag.Bool("debug", false, "Enable debug logs")
-)
+type Metrics struct {
+	Prometheus MetricsStack
+	Datadog    MetricsStack
+}
+
+type MetricsStack struct {
+	Enabled bool
+	URL     string
+	Client  *statsd.Client
+}
 
 var (
 	hostCertExpirationDate = prometheus.NewGaugeVec(
@@ -50,10 +58,10 @@ var (
 	)
 )
 
-func InitMetrics() {
-	prometheus.MustRegister(hostCertExpirationDate)
-	prometheus.MustRegister(fileCertExpirationDate)
-}
+var (
+	config = flag.String("config", "config.yaml", "Path to config file")
+	debug  = flag.Bool("debug", false, "Enable debug logs")
+)
 
 func retry(attempts int, sleep time.Duration, f func() error) (err error) {
 	for i := 0; ; i++ {
@@ -88,15 +96,25 @@ func checkFileCert(certPath string, config *Config) {
 	}
 	log.WithFields(log.Fields{"cn": certs[0].Subject.CommonName, "date": certs[0].NotAfter}).Info("Checking certificate: ", certs[0].Subject.CommonName)
 
-	if config.PromUrl != "" {
+	if config.Metrics.Prometheus.Enabled {
 		fileCertExpirationDate.WithLabelValues(certPath, certs[0].Subject.CommonName, strings.Join(certs[0].DNSNames, ", "), certs[0].Issuer.CommonName).Set(float64(certs[0].NotAfter.Unix()))
 		errPushProm := retry(config.NbDialRetry, 5*time.Second, func() (err error) {
-			err = push.New(config.PromUrl, "tlsmonitor-files").Collector(fileCertExpirationDate).Push()
+			err = push.New(config.Metrics.Prometheus.URL, "tlsmonitor-files").Collector(fileCertExpirationDate).Push()
 			return
 		})
 		if errPushProm != nil {
 			log.Error("Could not push completion time to Pushgateway: ", errPushProm)
 		}
+	} else if config.Metrics.Datadog.Enabled {
+		config.Metrics.Datadog.Client.Set(
+			"tlsmonitor-files",
+			fmt.Sprintf("%v", certs[0].NotAfter.Unix()),
+			[]string{
+				"filename:" + certPath,
+				"cn:" + certs[0].Subject.CommonName,
+				"dnsNames:" + strings.Join(certs[0].DNSNames, ", "),
+				"certAuthority:" + certs[0].Issuer.CommonName},
+			1)
 	}
 }
 
@@ -159,27 +177,46 @@ func checkHostCert(target string, config *Config) {
 }
 
 func pushHostCert(host string, ip string, ca string, value float64, config *Config) {
-	if config.PromUrl == "" {
-		return
+	if config.Metrics.Prometheus.Enabled && config.Metrics.Prometheus.URL != "" {
+		// metrics.WithLabelValues(labels...).Set(value) generic version
+		hostCertExpirationDate.WithLabelValues(host, ip, ca).Set(value)
+		errPushProm := retry(config.NbDialRetry, 5*time.Second, func() (err error) {
+			err = push.New(config.Metrics.Prometheus.URL, "tlsmonitor-hosts").Collector(hostCertExpirationDate).Push()
+			return
+		})
+		if errPushProm != nil {
+			log.Error("could not push completion time to Pushgateway: ", errPushProm)
+		}
+	} else if config.Metrics.Datadog.Enabled {
+		err := config.Metrics.Datadog.Client.Set("tlsmonitor-hosts", fmt.Sprintf("%f", value), []string{"host:" + host, "ip:" + ip, "ca:" + ca}, 1)
+		if err != nil {
+			log.Error("could not push completion time to DataDog: ", err)
+		}
 	}
-	// metrics.WithLabelValues(labels...).Set(value) generic version
-	hostCertExpirationDate.WithLabelValues(host, ip, ca).Set(value)
-	errPushProm := retry(config.NbDialRetry, 5*time.Second, func() (err error) {
-		err = push.New(config.PromUrl, "tlsmonitor-hosts").Collector(hostCertExpirationDate).Push()
-		return
-	})
-	if errPushProm != nil {
-		log.Error("Could not push completion time to Pushgateway: ", errPushProm)
+}
+
+func initMetrics(metrics *Metrics) error {
+	if metrics.Prometheus.Enabled {
+		if metrics.Prometheus.URL == "" {
+			return errors.New("prometheus URL has not been specified")
+		}
+		prometheus.MustRegister(hostCertExpirationDate)
+		prometheus.MustRegister(fileCertExpirationDate)
+	} else if metrics.Datadog.Enabled {
+		var err error
+		metrics.Datadog.Client, err = statsd.New(metrics.Datadog.URL)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func main() {
 	flag.Parse()
 
-	Formatter := new(log.TextFormatter)
-	Formatter.TimestampFormat = "02-01-2006 15:04:05"
-	Formatter.FullTimestamp = true
-	log.SetFormatter(Formatter)
+	log.SetFormatter(&log.JSONFormatter{})
 	if *debug {
 		log.SetLevel(log.DebugLevel)
 	}
@@ -194,7 +231,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	InitMetrics()
+	err = initMetrics(&config.Metrics)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if config.NbDialRetry == 0 {
 		config.NbDialRetry = 3
