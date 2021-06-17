@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Extract Git Tag
+      run: echo "GIT_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
     - name: docker login
       env:
         DOCKER_HUB_USER: ${{secrets.DOCKER_HUB_USER}}
@@ -17,7 +19,10 @@ jobs:
       run: |
         echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag "${{ secrets.DOCKER_HUB_REPOSITORY }}":latest
-
+      env:
+        IMAGE_TAG: ${{ env.GIT_TAG }}
+      run: docker build . --file Dockerfile --tag "${{ secrets.DOCKER_HUB_REPOSITORY }}":$IMAGE_TAG
     - name: Docker Push
-      run: docker push "${{ secrets.DOCKER_HUB_REPOSITORY }}":latest
+      env:
+        IMAGE_TAG: ${{ env.GIT_TAG }}
+      run: docker push "${{ secrets.DOCKER_HUB_REPOSITORY }}":$IMAGE_TAG
