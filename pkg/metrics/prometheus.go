@@ -1,7 +1,9 @@
 package metrics
 
 import (
+	"fmt"
 	"net/http"
+	"tlsmonitor/pkg/config"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -24,19 +26,21 @@ var (
 	)
 )
 
-func updateHostCert(host string, ip string, ca string, value float64) {
+func UpdateHostCert(host string, ip string, ca string, value float64) {
 	hostCertExpirationDate.WithLabelValues(host, ip, ca).Set(value)
 }
 
-func main() {
-	prometheus.MustRegister(hostCertExpirationDate)
-	prometheus.MustRegister(fileCertExpirationDate)
-
-	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":2112", nil)
+func UpdateFileCert(filename string, cn string, dnsNames string, certAuthority string, value float64) {
+	fileCertExpirationDate.WithLabelValues(filename, cn, dnsNames, certAuthority).Set(value)
 }
 
-func ServeMetrics(metricsConfig config) {
-	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":9090", nil)
+func InitMetrics() {
+	prometheus.MustRegister(hostCertExpirationDate)
+	prometheus.MustRegister(fileCertExpirationDate)
+}
+
+func ServeMetrics(config config.Metrics) {
+
+	http.Handle(config.Path, promhttp.Handler())
+	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil)
 }
