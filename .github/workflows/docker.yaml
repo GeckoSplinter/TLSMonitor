@@ -20,8 +20,9 @@ jobs:
         echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
     - name: Build the Docker image
       env:
+        OPTS: 'GOOS=linux GOARCH=amd64 CGO_ENABLED=0'
         IMAGE_TAG: ${{ env.GIT_TAG }}
-      run: docker build . --file Dockerfile --tag "${{ secrets.DOCKER_HUB_REPOSITORY }}":$IMAGE_TAG
+      run: docker build --build-arg opts="${{ env.OPTS }}" . --file Dockerfile --tag "${{ secrets.DOCKER_HUB_REPOSITORY }}":$IMAGE_TAG
     - name: Docker Push
       env:
         IMAGE_TAG: ${{ env.GIT_TAG }}

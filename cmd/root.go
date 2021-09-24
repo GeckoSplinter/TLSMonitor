@@ -15,10 +15,17 @@ var rootCmd = &cobra.Command{
 }
 
 var Debug bool
+var ConfigPath string
 
 func Execute() {
 	log.SetFormatter(&log.JSONFormatter{})
-	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "enable debug logs")
+	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Enable debug logs")
+	rootCmd.PersistentFlags().StringVarP(&ConfigPath, "config", "c", "./config.yaml", "Config file path")
+
+	if Debug {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		log.WithError(err).Error("an error occurred")
 		os.Exit(1)

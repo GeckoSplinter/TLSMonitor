@@ -19,15 +19,14 @@ var directCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var serverConfig config.Config
 
-		viper.SetConfigName("config")
-		viper.AddConfigPath(".")
-		viper.SetConfigType("yaml")
-
 		if Debug {
 			log.SetLevel(log.DebugLevel)
 		}
+
+		viper.SetConfigFile(ConfigPath)
+		log.Debug("Config path: ", ConfigPath)
 		if err := viper.ReadInConfig(); err != nil {
-			log.WithError(err).Error("can't read config.yaml")
+			log.WithError(err).Error("Cannot read: ", ConfigPath)
 		}
 
 		err := viper.Unmarshal(&serverConfig)

@@ -21,12 +21,10 @@ var serverCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var serverConfig config.Config
 
-		viper.SetConfigName("config")
-		viper.AddConfigPath(".")
-		viper.SetConfigType("yaml")
-
+		viper.SetConfigFile(ConfigPath)
+		log.Debug("Config path; %s", ConfigPath)
 		if err := viper.ReadInConfig(); err != nil {
-			log.WithError(err).Error("can't read config.yaml")
+			log.WithError(err).Error("Cannot read: ", ConfigPath)
 		}
 
 		err := viper.Unmarshal(&serverConfig)
@@ -41,7 +39,8 @@ var serverCmd = &cobra.Command{
 			}()
 		}
 
-		for range time.Tick(time.Second * 90) {
+		tls.StartChecks(&serverConfig) //Run it a first time before tick
+		for range time.Tick(time.Hour * time.Duration(serverConfig.ChecksFrequency)) {
 			tls.StartChecks(&serverConfig)
 		}
 
