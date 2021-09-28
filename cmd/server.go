@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 	"tlsmonitor/pkg/config"
 	"tlsmonitor/pkg/metrics"
@@ -38,6 +40,14 @@ var serverCmd = &cobra.Command{
 				metrics.ServeMetrics(serverConfig.Metrics)
 			}()
 		}
+
+		go func() {
+			http.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
+				fmt.Fprint(w, "200 - healthy")
+			},
+			)
+			http.ListenAndServe(":8000", nil)
+		}()
 
 		tls.StartChecks(&serverConfig) //Run it a first time before tick
 		for range time.Tick(time.Hour * time.Duration(serverConfig.ChecksFrequency)) {
