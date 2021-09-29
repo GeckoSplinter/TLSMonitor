@@ -1,0 +1,7 @@
+metrics:
+  enabled: {{ .Values.metrics.enabled }}
+  port: {{ .Values.metrics.port }}
+  path: {{ .Values.metrics.path }}
+hosts: {{ .Values.hosts }}
+certsPaths: {{ .Values.certificateSecrets }}
+checksFrequency: {{ .Values.checksFrequency }}
