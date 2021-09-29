@@ -46,7 +46,7 @@ var serverCmd = &cobra.Command{
 				fmt.Fprint(w, "200 - healthy")
 			},
 			)
-			http.ListenAndServe(":8000", nil)
+			http.ListenAndServe(":8080", nil)
 		}()
 
 		tls.StartChecks(&serverConfig) //Run it a first time before tick

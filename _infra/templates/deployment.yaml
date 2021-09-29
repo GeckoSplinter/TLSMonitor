@@ -93,6 +93,14 @@ spec:
             resourceFieldRef:
               containerName: tlsmonitor
               resource: limits.cpu
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
         securityContext:
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: false
