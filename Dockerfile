@@ -11,7 +11,8 @@ RUN env ${opts} go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o t
 
 # FINAL IMAGE
 
-FROM gcr.io/distroless/static
+#FROM gcr.io/distroless/static
+FROM debian
 
 COPY --from=builder /tlsmonitor/tlsmonitor /tlsmonitor
 
