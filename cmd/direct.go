@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"time"
 	"tlsmonitor/pkg/config"
 	"tlsmonitor/pkg/tls"
 
@@ -36,6 +37,10 @@ var directCmd = &cobra.Command{
 
 		log.Debug(serverConfig)
 		tls.StartChecks(&serverConfig)
+
+		if serverConfig.Metrics.WaitScraping {
+			time.Sleep(time.Second * 60)
+		}
 
 		return nil
 	},

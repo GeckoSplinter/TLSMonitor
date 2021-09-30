@@ -13,7 +13,7 @@ hosts: []
 # - www.google.com
 
 # File certificates to check (must be secrets in the same NS)
-certficateSecrets:
+certficateSecrets: []
 # - secretName
 
 # Frequency is hours express has int
@@ -26,6 +26,10 @@ metrics:
   prometheusAnnotations: false
   port: 9090
   path: /metrics
+
+istio:
+  sidecar: false
+  serviceEntry: true
 
 resources:
   requests:

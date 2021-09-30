@@ -26,7 +26,6 @@ func StartChecks(config *config.Config) {
 	}
 
 	for _, certPath := range config.CertsPaths {
-		log.Debug("Test")
 		fm, err := os.Stat(certPath)
 		if err != nil {
 			log.WithFields(log.Fields{"certPath": certPath}).Error(err.Error())

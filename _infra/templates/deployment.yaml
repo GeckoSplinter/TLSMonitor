@@ -53,26 +53,6 @@ spec:
                 operator: Exists
             weight: 100
 {{- end }}
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - {{ .Release.Name }}
-              topologyKey: kubernetes.io/hostname
-            weight: 50
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - {{ .Release.Name }}
-              topologyKey: topology.kubernetes.io/zone
-            weight: 100
       containers:
       - name: tlsmonitor
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -84,7 +64,8 @@ spec:
         command: ['/tlsmonitor']
         args:
         - 'server'
-        - '-c /config.yaml'
+        - '-c'
+        - '/config.yaml'
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         env:

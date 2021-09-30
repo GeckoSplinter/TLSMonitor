@@ -16,6 +16,7 @@ FROM debian
 
 COPY --from=builder /tlsmonitor/tlsmonitor /tlsmonitor
 
+EXPOSE 8080
 EXPOSE 9090
 LABEL version 0.1.0
 LABEL name tlsmonitor
