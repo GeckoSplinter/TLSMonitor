@@ -27,7 +27,7 @@ func CheckFileCert(certPath string, config *config.Config) {
 		log.WithFields(log.Fields{"certPath": certPath}).Error(err.Error())
 		return
 	}
-	log.WithFields(log.Fields{"cn": certs[0].Subject.CommonName, "date": certs[0].NotAfter}).Info("Checking certificate: ", certs[0].Subject.CommonName)
+	log.WithFields(log.Fields{"cn": certs[0].Subject.CommonName, "expiration": certs[0].NotAfter}).Info("Checking certificate: ", certs[0].Subject.CommonName)
 
 	if config.Metrics.Enabled {
 		//fileCertExpirationDate.WithLabelValues(certPath, certs[0].Subject.CommonName, strings.Join(certs[0].DNSNames, ", "), certs[0].Issuer.CommonName).Set(float64(certs[0].NotAfter.Unix()))
