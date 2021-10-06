@@ -28,12 +28,12 @@ func retry(attempts int, sleep time.Duration, f func() error) (err error) {
 }
 
 func CheckHostCert(target string, config *config.Config) {
-	log.WithFields(log.Fields{"host": target}).Info("Checking cert")
+	log.WithFields(log.Fields{"fqdn": target}).Info("Checking cert")
 	targetPort := strings.Split(target, ":")
 	port := "443"
 	host := targetPort[0]
 	if len(targetPort) > 2 {
-		log.WithFields(log.Fields{"host": target}).Error("Host value not valid")
+		log.WithFields(log.Fields{"fqdn": target}).Error("Host value not valid")
 		return
 	} else if len(targetPort) == 2 {
 		port = targetPort[1]
@@ -48,7 +48,7 @@ func CheckHostCert(target string, config *config.Config) {
 		return
 	})
 	if errLookup != nil {
-		log.WithFields(log.Fields{"host": host}).Error("Lookup IP failed")
+		log.WithFields(log.Fields{"fqdn": host}).Error("Lookup IP failed")
 		//pushHostCert(host, "0.0.0.0", "NA", -1, config)
 		if config.Metrics.Enabled {
 			metrics.UpdateHostCert(host, "0.0.0.0", "NA", -1)
@@ -69,7 +69,7 @@ func CheckHostCert(target string, config *config.Config) {
 				return
 			})
 			if errDial != nil {
-				log.WithFields(log.Fields{"status": "FAILED", "host": host, "ip": ip}).Warn(errDial.Error())
+				log.WithFields(log.Fields{"status": "FAILED", "fqdn": host, "ip": ip}).Warn(errDial.Error())
 				//pushHostCert(host, ip.String(), "NA", -2, config)
 				if config.Metrics.Enabled {
 					metrics.UpdateHostCert(host, ip.String(), "NA", -2)
@@ -80,12 +80,12 @@ func CheckHostCert(target string, config *config.Config) {
 			// Certificate is first in chain
 			endCert := conn.ConnectionState().PeerCertificates[0]
 			if timeNow.After(endCert.NotAfter) {
-				log.WithFields(log.Fields{"status": "EXPIRED", "host": host, "ip": ip, "date": endCert.NotAfter}).Warn("Cert is expired: ", endCert.Subject.CommonName)
+				log.WithFields(log.Fields{"status": "EXPIRED", "fqdn": host, "ip": ip, "date": endCert.NotAfter}).Warn("Cert is expired: ", endCert.Subject.CommonName)
 			} else if timeNow.AddDate(alertYears, alertMonths, alertDays).After(endCert.NotAfter) {
 				durationDays := int(-timeNow.Sub(endCert.NotAfter).Hours()) / 24
-				log.WithFields(log.Fields{"status": "SOON", "host": host, "ip": ip, "remaining": durationDays, "date": endCert.NotAfter}).Warn("Cert will expired soon: ", endCert.Subject.CommonName)
+				log.WithFields(log.Fields{"status": "SOON", "fqdn": host, "ip": ip, "remaining": durationDays, "date": endCert.NotAfter}).Warn("Cert will expired soon: ", endCert.Subject.CommonName)
 			} else {
-				log.WithFields(log.Fields{"status": "VALID", "host": host, "ip": ip, "date": endCert.NotAfter}).Info("Cert is valid: ", endCert.Subject.CommonName)
+				log.WithFields(log.Fields{"status": "VALID", "fqdn": host, "ip": ip, "date": endCert.NotAfter}).Info("Cert is valid: ", endCert.Subject.CommonName)
 			}
 			//pushHostCert(host, ip.String(), endCert.Issuer.CommonName, float64(endCert.NotAfter.Unix()), config)
 			if config.Metrics.Enabled {
