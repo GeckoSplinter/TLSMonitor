@@ -28,7 +28,7 @@ metrics:
 
 istio:
   sidecar: false
-  serviceEntry: true
+  serviceEntry: false
 
 resources:
   requests:
@@ -48,4 +48,3 @@ deployment:
 pod:
   labels: {}
   annotations: {}
-

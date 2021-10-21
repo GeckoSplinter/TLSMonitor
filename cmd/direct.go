@@ -3,6 +3,7 @@ package cmd
 import (
 	"time"
 	"tlsmonitor/pkg/config"
+	"tlsmonitor/pkg/metrics"
 	"tlsmonitor/pkg/tls"
 
 	log "github.com/sirupsen/logrus"
@@ -33,6 +34,13 @@ var directCmd = &cobra.Command{
 		err := viper.Unmarshal(&serverConfig)
 		if err != nil {
 			log.WithError(err).Error("unable to decode into struct")
+		}
+
+		if serverConfig.Metrics.Enabled {
+			metrics.InitMetrics()
+			go func() {
+				metrics.ServeMetrics(serverConfig.Metrics)
+			}()
 		}
 
 		log.Debug(serverConfig)
