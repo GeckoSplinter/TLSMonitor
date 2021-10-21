@@ -1,0 +1,24 @@
+{{- if .Values.istio.sidecar }}
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: {{ include "tlsmonitor.fullname" . }}
+spec:
+  egress:
+  - hosts:
+    - istio-system/*
+{{- range .Values.hosts }}
+    - '{{ .Release.Namespace }}/{{ . }}'
+{{- end }}
+{{- if .Values.metrics.enabled }}
+  ingress:
+  - defaultEndpoint: '127.0.0.1:{{ .Values.metrics.port }}'
+    port:
+      name: http-prom
+      number: {{ .Values.metrics.enabled }}
+      protocol: HTTP
+  workloadSelector:
+    labels:
+      app: {{ .Release.Name }}
+{{- end }}
+{{- end }}

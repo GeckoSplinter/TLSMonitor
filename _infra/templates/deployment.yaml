@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "tlsmonitor.fullname" . }}
   labels:
     app.kubernetes.io/name: {{ include "tlsmonitor.name" . }}
     helm.sh/chart: {{ include "tlsmonitor.chart" . }}
@@ -43,7 +43,10 @@ spec:
         json_logs: "true"
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-{{- if .Values.prometheusAnnotations }}
+{{- if and .Values.metrics.enabled .Values.metrics.prometheusAnnotations }}
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '{{ .Values.metrics.path }}'
+        prometheus.io/port: '{{ .Values.metrics.port }}'
 {{- end }}
 {{- with .Values.pod.annotations }}
 {{ toYaml . | indent 8 }}
@@ -75,11 +78,7 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         env:
-        - name: GOMAXPROCS
-          valueFrom:
-            resourceFieldRef:
-              containerName: tlsmonitor
-              resource: limits.cpu
+          {{- toYaml .Values.env | nindent 10 }}
         livenessProbe:
           httpGet:
             path: /health

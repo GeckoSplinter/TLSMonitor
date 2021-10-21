@@ -1,6 +1,5 @@
 ---
 # TLSmonitor helm chart
-#
 
 image:
   repository: geckosplinter/tlsmonitor

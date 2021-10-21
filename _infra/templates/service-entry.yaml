@@ -1,0 +1,15 @@
+{{- if .Values.istio.serviceEntry -}}
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: {{ include "tlsmonitor.fullname" . }}
+spec:
+  hosts: {{ .Values.hosts }}
+  location: MESH_EXTERNAL
+# TODO Handle custom port number
+  ports:
+  - number: 443
+    name: https
+    protocol: TLS
+  resolution: DNS
+{{- end }}
