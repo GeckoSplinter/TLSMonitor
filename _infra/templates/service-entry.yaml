@@ -1,15 +1,20 @@
-{{- if .Values.istio.serviceEntry -}}
+{{- if and .Values.istio.serviceEntry .Values.hosts -}}
+{{ $super := . }}
+{{- range .Values.hosts }}
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
-  name: {{ include "tlsmonitor.fullname" . }}
+  name: "{{ include "tlsmonitor.fullname" $super }}-port-{{ .port }}"
 spec:
-  hosts: {{ .Values.hosts }}
+  hosts:
+{{- range .target }}
+    - {{ . }}
+{{- end}}
   location: MESH_EXTERNAL
-# TODO Handle custom port number
   ports:
-  - number: 443
+  - number: {{ .port }}
     name: https
     protocol: TLS
   resolution: DNS
+{{- end }}
 {{- end }}

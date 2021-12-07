@@ -1,4 +1,4 @@
-{{- if .Values.istio.sidecar }}
+{{- if and .Values.istio.sidecar .Values.hosts }}
 apiVersion: networking.istio.io/v1beta1
 kind: Sidecar
 metadata:
@@ -8,17 +8,19 @@ spec:
   - hosts:
     - istio-system/*
 {{- range .Values.hosts }}
-    - '{{ .Release.Namespace }}/{{ . }}'
+{{- range .target }}
+    - './{{ . }}'
+{{- end }}
 {{- end }}
 {{- if .Values.metrics.enabled }}
   ingress:
   - defaultEndpoint: '127.0.0.1:{{ .Values.metrics.port }}'
     port:
       name: http-prom
-      number: {{ .Values.metrics.enabled }}
+      number: {{ .Values.metrics.port }}
       protocol: HTTP
+{{- end }}
   workloadSelector:
     labels:
       app: {{ .Release.Name }}
-{{- end }}
 {{- end }}

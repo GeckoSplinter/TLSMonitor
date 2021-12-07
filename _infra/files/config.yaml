@@ -3,7 +3,13 @@ metrics:
   port: {{ .Values.metrics.port }}
   path: {{ .Values.metrics.path }}
 {{- if .Values.hosts }}
-hosts: {{ .Values.hosts }}
+hosts:
+{{- range .Values.hosts }}
+{{ $port := .port }}
+{{- range .target }}
+- "{{ . }}:{{ $port }}"
+{{- end}}
+{{- end }}
 {{- end }}
 {{- if .Values.certsPaths }}
 certsPaths: {{ .Values.certificateSecrets }}
