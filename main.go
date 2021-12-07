@@ -4,7 +4,7 @@ import (
 	"tlsmonitor/cmd"
 
 	log "github.com/sirupsen/logrus"
-	_ "go.uber.org/automaxprocs"
+	//_ "go.uber.org/automaxprocs"
 )
 
 func main() {
