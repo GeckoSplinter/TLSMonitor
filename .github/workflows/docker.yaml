@@ -47,6 +47,7 @@ jobs:
         args: release --rm-dist
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GO111MODULE: on
 
     - name: Dockerhub Login
       #if: github.event_name != 'pull_request'
