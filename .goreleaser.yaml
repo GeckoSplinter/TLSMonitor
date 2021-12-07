@@ -4,10 +4,10 @@ builds:
       - GO111MODULE=on
     goos:
       - linux
-      - darwin
+        #- darwin
     goarch:
       - amd64
-      - arm64
-    goarm:
-      - 6
-      - 7
+        #- arm64
+        #goarm:
+        #  - 6
+        #  - 7
