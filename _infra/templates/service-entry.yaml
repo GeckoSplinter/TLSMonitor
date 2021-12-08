@@ -1,6 +1,7 @@
 {{- if and .Values.istio.serviceEntry .Values.hosts -}}
 {{ $super := . }}
 {{- range .Values.hosts }}
+---
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
