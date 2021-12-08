@@ -1,0 +1,8 @@
+nbDialRetry: 10
+hosts:
+  - www.example.domain
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+checksFrequency: 1
