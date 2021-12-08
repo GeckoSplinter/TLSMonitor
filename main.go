@@ -3,6 +3,7 @@ package main
 import (
 	"tlsmonitor/cmd"
 
+	"github.com/DataDog/datadog-go/statsd"
 	log "github.com/sirupsen/logrus"
 	_ "go.uber.org/automaxprocs"
 )
@@ -10,4 +11,5 @@ import (
 func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	cmd.Execute()
+
 }
