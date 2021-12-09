@@ -40,6 +40,7 @@ var serverCmd = &cobra.Command{
 
 		log.Debug(serverConfig)
 
+		// Start Health check for kubernetes integration
 		go func() {
 			http.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 				fmt.Fprint(w, "200 - healthy")

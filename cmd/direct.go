@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"time"
 	"tlsmonitor/pkg/config"
 	"tlsmonitor/pkg/tls"
@@ -23,27 +24,16 @@ var directCmd = &cobra.Command{
 			log.SetLevel(log.DebugLevel)
 		}
 
-		//viper.SetConfigFile(ConfigPath)
-		//log.Debug("Config path: ", ConfigPath)
-		//if err := viper.ReadInConfig(); err != nil {
-		//	log.WithError(err).Error("Cannot read: ", ConfigPath)
-		//}
-
-		//err := viper.Unmarshal(&serverConfig)
-		//if err != nil {
-		//	log.WithError(err).Error("unable to decode into struct")
-		//}
-
-		//if serverConfig.Metrics.Enabled {
-		//	metrics.InitMetrics()
-		//	go func() {
-		//		metrics.ServeMetrics(serverConfig.Metrics)
-		//	}()
-		//}
-
 		serverConfig, err := LoadConfig()
 		if err != nil {
+			log.WithError(err).Error("Unable to loadvonfig")
+			os.Exit(1)
+		}
 
+		err = StartMetrics(&serverConfig)
+		if err != nil {
+			log.WithError(err).Error("Unable to start metrics")
+			os.Exit(1)
 		}
 
 		log.Debug(serverConfig)
