@@ -10,37 +10,36 @@ import (
 )
 
 var (
-	hostCertExpirationDate = prometheus.NewGaugeVec(
+	hostCertExpirationTime = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "host_cert_expiration_date",
-			Help: "The expiration date in sec of the host cert",
+			Name: "host_cert_expiration_sec",
+			Help: "The time remaning before expiration in sec",
 		},
-		[]string{"target", "ip", "certAuthority"},
+		[]string{"fqdn", "ip", "certAuthority"},
 	)
-	fileCertExpirationDate = prometheus.NewGaugeVec(
+	fileCertExpirationTime = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "file_cert_expiration_date",
-			Help: "The expiration date in sec of the file cert",
+			Name: "file_cert_expiration_sec",
+			Help: "The time remaining before expiration in sec",
 		},
 		[]string{"filename", "cn", "dnsNames", "certAuthority"},
 	)
 )
 
-func UpdateHostCert(host string, ip string, ca string, value float64) {
-	hostCertExpirationDate.WithLabelValues(host, ip, ca).Set(value)
+func UpdateHostCert(fqdn string, ip string, ca string, value float64) {
+	hostCertExpirationTime.WithLabelValues(fqdn, ip, ca).Set(value)
 }
 
 func UpdateFileCert(filename string, cn string, dnsNames string, certAuthority string, value float64) {
-	fileCertExpirationDate.WithLabelValues(filename, cn, dnsNames, certAuthority).Set(value)
+	fileCertExpirationTime.WithLabelValues(filename, cn, dnsNames, certAuthority).Set(value)
 }
 
 func InitMetrics() {
-	prometheus.MustRegister(hostCertExpirationDate)
-	prometheus.MustRegister(fileCertExpirationDate)
+	prometheus.MustRegister(hostCertExpirationTime)
+	prometheus.MustRegister(fileCertExpirationTime)
 }
 
 func ServeMetrics(config config.Metrics) {
-
 	http.Handle(config.Path, promhttp.Handler())
 	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil)
 }

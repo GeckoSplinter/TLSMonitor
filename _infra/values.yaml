@@ -3,20 +3,24 @@
 
 image:
   repository: geckosplinter/tlsmonitor
-  tag: v0.1.0
+  tag: 1.1.0
   pullPolicy: IfNotPresent
 
 # List of endpoints to checks
 hosts: []
-# - www.google.com:443
-# - www.google.com
+# - port: 443
+#   target:
+#   - www.google.fr
+# - port: 8443
+#   target:
+#   - www.google.com
 
 # File certificates to check (must be secrets in the same NS)
 certficateSecrets: []
 # - secretName
 
 # Frequency is hours express has int
-checksFrequency: 1
+checksFrequency: 24
 
 # Prometheus metrics
 metrics:
