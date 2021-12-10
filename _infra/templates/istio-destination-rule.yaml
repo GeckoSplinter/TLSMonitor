@@ -16,8 +16,8 @@ metadata:
 spec:
   host: {{ . }}
   trafficPolicy:
-    tcp:
-      connectionPool:
+    connectionPool:
+      tcp:
         connectTimeout: {{ default "2s" $super.Values.istio.connectTimeout }}
 {{- end}}
 {{- end }}
