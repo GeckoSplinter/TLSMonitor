@@ -5,7 +5,7 @@ metrics:
 {{- if .Values.hosts }}
 hosts:
 {{- range .Values.hosts }}
-{{ $port := .port }}
+{{- $port := .port }}
 {{- range .target }}
 - "{{ . }}:{{ $port }}"
 {{- end}}
