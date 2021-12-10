@@ -3,7 +3,7 @@
 
 image:
   repository: geckosplinter/tlsmonitor
-  tag: 1.1.0
+  tag: 1.1.1
   pullPolicy: IfNotPresent
 
 # List of endpoints to checks
@@ -31,6 +31,7 @@ metrics:
   path: /metrics
 
 istio:
+  enabled: false
   sidecar: false
   serviceEntry: false
 
@@ -41,6 +42,8 @@ resources:
   limits:
     cpu: 100m
     memory: 128Mi
+
+pdb: 1
 
 nodeAffinity.key: {}
 

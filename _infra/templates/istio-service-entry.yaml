@@ -6,6 +6,12 @@ apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
   name: "{{ include "tlsmonitor.fullname" $super }}-port-{{ .port }}"
+  labels:
+    app.kubernetes.io/name: {{ include "tlsmonitor.name" $super }}
+    helm.sh/chart: {{ include "tlsmonitor.chart" $super }}
+    app.kubernetes.io/instance: {{ $super.Release.Name }}
+    app.kubernetes.io/managed-by: {{$super.Release.Service }}
+    app: {{ $super.Release.Name }}
 spec:
   hosts:
 {{- range .target }}
