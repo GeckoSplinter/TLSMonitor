@@ -10,12 +10,14 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "tlsmonitor",
 	Short: "Monitoring certificate expiration",
-	Long: `TLS Monitor will parse certificate to get the expiration date
-                it can expose metrics in prometheus format.`,
+	Long: `TLS Monitor will parse certificate to get the time remaining before
+					expiration, it can expose metrics in prometheus format.`,
 }
 
-var Debug bool
-var ConfigPath string
+var (
+	Debug      bool
+	ConfigPath string
+)
 
 func Execute() {
 	log.SetFormatter(&log.JSONFormatter{})

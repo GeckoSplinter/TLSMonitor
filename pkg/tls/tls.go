@@ -11,7 +11,6 @@ import (
 )
 
 func StartChecks(config *config.Config) {
-
 	if config.NbDialRetry == 0 {
 		config.NbDialRetry = 3
 	}

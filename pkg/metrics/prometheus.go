@@ -40,6 +40,12 @@ func InitMetrics() {
 }
 
 func ServeMetrics(config config.Metrics) {
+	if config.Port == 0 {
+		config.Port = 9090
+	}
+	if config.Path == "" {
+		config.Path = "/metrics"
+	}
 	http.Handle(config.Path, promhttp.Handler())
 	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil)
 }

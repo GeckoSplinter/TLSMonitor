@@ -78,7 +78,7 @@ func CheckHostCert(target string, config *config.Config) {
 			// Certificate is first in chain
 			endCert := conn.ConnectionState().PeerCertificates[0]
 
-			remainingTime := (endCert.NotAfter.Sub(timeNow))
+			remainingTime := endCert.NotAfter.Unix() - timeNow.Unix()
 			if timeNow.After(endCert.NotAfter) {
 				log.WithFields(log.Fields{
 					"status":        "EXPIRED",

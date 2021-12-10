@@ -28,7 +28,7 @@ var serverCmd = &cobra.Command{
 
 		serverConfig, err := LoadConfig()
 		if err != nil {
-			log.WithError(err).Error("Unable to loadvonfig")
+			log.WithError(err).Error("Unable to load config")
 			os.Exit(1)
 		}
 
