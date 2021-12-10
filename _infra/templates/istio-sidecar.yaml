@@ -12,7 +12,7 @@ metadata:
 spec:
   egress:
   - hosts:
-    - istio-system/istiod
+    - istio-system/istiod.istio-system.svc.cluster.local
 {{- range .Values.hosts }}
 {{- range .target }}
     - './{{ . }}'
