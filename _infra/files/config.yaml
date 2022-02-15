@@ -11,7 +11,10 @@ hosts:
 {{- end}}
 {{- end }}
 {{- end }}
-{{- if .Values.certsPaths }}
-certsPaths: {{ .Values.certificateSecrets }}
+{{- if .Values.certificateSecrets }}
+certsPaths:
+{{- range .Values.certificateSecrets }}
+- "/certs/{{ . }}"
+{{- end }}
 {{- end }}
 checksFrequency: {{ .Values.checksFrequency }}

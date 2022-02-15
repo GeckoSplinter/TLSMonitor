@@ -94,9 +94,9 @@ spec:
         - name: config
           mountPath: /config.yaml
           subPath: config.yaml
-{{- range  .Values.certficateSecrets }}
-        - name: {{.}}
-          mountPath: "/certs/{{.}}/"
+{{- range .Values.certificateSecrets }}
+        - name: {{ . }}
+          mountPath: "/certs/{{ . }}/"
           readOnly: true
 {{- end }}
 {{- if .Values.tolerations }}
@@ -115,5 +115,6 @@ spec:
         secret:
           secretName: {{.}}
           items:
-          - tls.crt
+          - key: tls.crt
+            path: tls.crt
 {{- end }}
