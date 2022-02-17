@@ -31,7 +31,7 @@ func CheckFileCert(certPath string, config *config.Config) {
 	log.WithFields(log.Fields{"cn": certs[0].Subject.CommonName, "expiration": certs[0].NotAfter}).
 		Info("Checking certificate: ", certs[0].Subject.CommonName)
 
-	remainingTime := time.Now().Unix() - certs[0].NotAfter.Unix()
+	remainingTime := certs[0].NotAfter.Unix() - time.Now().Unix()
 	if config.Metrics.Enabled {
 		metrics.UpdateFileCert(
 			certPath,
