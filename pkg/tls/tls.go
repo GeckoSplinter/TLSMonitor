@@ -37,9 +37,18 @@ func StartChecks(config *config.Config) {
 		} else if fm.Mode().IsDir() {
 			var files []string
 			err := filepath.Walk(certPath, func(path string, info os.FileInfo, err error) error {
+				if info.IsDir() && strings.HasPrefix(info.Name(), ".") {
+					log.Debug("Hidden dir ignored: ", info.Name())
+					return filepath.SkipDir
+				}
+				if strings.HasPrefix(info.Name(), ".") {
+					log.Debug("Hidden file ignored: ", info.Name())
+					return nil
+				}
 				if info.IsDir() {
 					return nil
-				} else if strings.Contains(info.Name(), "key") {
+				}
+				if strings.Contains(info.Name(), "key") {
 					log.Debug("Cert checking excluded key file: ", info.Name())
 					return nil
 				}
