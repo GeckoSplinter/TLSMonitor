@@ -14,7 +14,7 @@ hosts:
 {{- if .Values.certificateSecrets }}
 certsPaths:
 {{- range .Values.certificateSecrets }}
-- "/certs/{{ . }}/tls.crt"
+- "/certs/{{ . }}/"
 {{- end }}
 {{- end }}
 checksFrequency: {{ .Values.checksFrequency }}

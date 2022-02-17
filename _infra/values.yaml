@@ -19,7 +19,7 @@ hosts: []
 certficateSecrets: []
 # - secretName
 
-# Frequency is hours express has int
+# Frequency is hours express as int
 checksFrequency: 24
 
 # Prometheus metrics
