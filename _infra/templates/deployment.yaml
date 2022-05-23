@@ -106,6 +106,7 @@ spec:
       securityContext:
         fsGroup: 17918
         runAsUser: 17918
+      serviceAccountName: {{ .Release.Name }}
       volumes:
       - name: config
         configMap:
