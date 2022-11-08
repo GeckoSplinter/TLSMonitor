@@ -16,7 +16,7 @@ metadata:
 {{- end }}
 spec:
   revisionHistoryLimit: 3
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "tlsmonitor.name" . }}

@@ -43,6 +43,7 @@ resources:
     cpu: 100m
     memory: 128Mi
 
+replicas: 1
 pdb: 1
 
 nodeAffinity.key: {}
